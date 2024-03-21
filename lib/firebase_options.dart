@@ -44,38 +44,38 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCCLlnrIOaQuHdUqXnA6-efWr90pEQNS6Q',
-    appId: '1:462034581420:web:bdfd4da7cc7b28f5c26c09',
-    messagingSenderId: '462034581420',
-    projectId: 'flutter-8283b',
-    authDomain: 'flutter-8283b.firebaseapp.com',
-    storageBucket: 'flutter-8283b.appspot.com',
-    measurementId: 'G-GM84KC2JCD',
+    apiKey: 'AIzaSyDiibUkqHLtx_qwxyKwn4OWclc1CFYEsvQ',
+    appId: '1:846343932547:web:ef675aa2d04991f9de69b6',
+    messagingSenderId: '846343932547',
+    projectId: 'fir-22-2e754',
+    authDomain: 'fir-22-2e754.firebaseapp.com',
+    storageBucket: 'fir-22-2e754.appspot.com',
+    measurementId: 'G-22WT502L4G',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDM1KeWMkxOx85iFDnYFjv52zRkkI4BGO0',
-    appId: '1:462034581420:android:224db5930c6072e1c26c09',
-    messagingSenderId: '462034581420',
-    projectId: 'flutter-8283b',
-    storageBucket: 'flutter-8283b.appspot.com',
+    apiKey: 'AIzaSyBuPdNJfTx33CHN_xdN6PzWYe-adnOtroM',
+    appId: '1:846343932547:android:fe34046938976230de69b6',
+    messagingSenderId: '846343932547',
+    projectId: 'fir-22-2e754',
+    storageBucket: 'fir-22-2e754.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBXP8_LOqFmF9Z-4qgeWo2D5MWtqcfm_qA',
-    appId: '1:462034581420:ios:1e30f812ac8290e7c26c09',
-    messagingSenderId: '462034581420',
-    projectId: 'flutter-8283b',
-    storageBucket: 'flutter-8283b.appspot.com',
+    apiKey: 'AIzaSyAZR7gB3gMbLPYfNdsCddQocXaffhVD5rU',
+    appId: '1:846343932547:ios:da15795d2671bab6de69b6',
+    messagingSenderId: '846343932547',
+    projectId: 'fir-22-2e754',
+    storageBucket: 'fir-22-2e754.appspot.com',
     iosBundleId: 'com.example.firebaseflutter',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBXP8_LOqFmF9Z-4qgeWo2D5MWtqcfm_qA',
-    appId: '1:462034581420:ios:1f9121221c4b1a04c26c09',
-    messagingSenderId: '462034581420',
-    projectId: 'flutter-8283b',
-    storageBucket: 'flutter-8283b.appspot.com',
+    apiKey: 'AIzaSyAZR7gB3gMbLPYfNdsCddQocXaffhVD5rU',
+    appId: '1:846343932547:ios:f713256bbfccbb01de69b6',
+    messagingSenderId: '846343932547',
+    projectId: 'fir-22-2e754',
+    storageBucket: 'fir-22-2e754.appspot.com',
     iosBundleId: 'com.example.firebaseflutter.RunnerTests',
   );
 }
