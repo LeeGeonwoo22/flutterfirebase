@@ -5,15 +5,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-Future<void> main() async{
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-  FirebaseAuth.instance
-      .userChanges()
-      .listen((User? user) {
+  FirebaseAuth.instance.userChanges().listen((User? user) {
     if (user == null) {
       print('User is currently signed out!');
     } else {
@@ -28,7 +26,7 @@ class MyApp extends StatelessWidget {
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext c1ontext) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -50,7 +48,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: LoginPhonePage(),
+      home: LoginPage(),
     );
   }
 }

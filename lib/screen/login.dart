@@ -1,18 +1,23 @@
 import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 
 class LoginPhonePage extends StatefulWidget {
-  const LoginPhonePage({Key? key}) : super(key: key);
+  const LoginPhonePage({super.key});
 
   @override
-  _LoginPhonePageState createState() => _LoginPhonePageState();
+  State<LoginPhonePage> createState() => _LoginPhonePageState();
 }
 
 class _LoginPhonePageState extends State<LoginPhonePage> {
   final _key = GlobalKey<FormState>();
+
   final TextEditingController _phoneController = TextEditingController();
+
   final TextEditingController _smsCodeController = TextEditingController();
+
   bool _codeSent = false;
+
   late String _verificationId;
 
   @override
@@ -93,8 +98,37 @@ class _LoginPhonePageState extends State<LoginPhonePage> {
   ElevatedButton submitButton() {
     return ElevatedButton(
       onPressed: () async {
+        print('clicked');
         if (_key.currentState!.validate()) {
-          await verifyPhoneNumber();
+          FirebaseAuth auth = FirebaseAuth.instance;
+
+          await auth.verifyPhoneNumber(
+            phoneNumber: _phoneController.text,
+            verificationCompleted: (PhoneAuthCredential credential) async {
+              // Android only
+
+              await auth
+                  .signInWithCredential(credential)
+                  .then((_) => Navigator.pushNamed(context, "/"));
+            },
+            verificationFailed: (FirebaseAuthException e) {
+              if (e.code == 'invalid-phone-number') {
+                print("The provided phone number is not valid.");
+              }
+            },
+            codeSent: (String verificationId, forceResendingToken) async {
+              // String smsCode = _smsCodeController.text;
+              //
+              // setState(() {
+              //   _codeSent = true;
+              //
+              //   _verificationId = verificationId;
+              // });
+            },
+            codeAutoRetrievalTimeout: (verificationId) {
+              print("handling code auto retrieval timeout");
+            },
+          );
         }
       },
       child: Container(
@@ -112,7 +146,14 @@ class _LoginPhonePageState extends State<LoginPhonePage> {
   ElevatedButton verifyButton() {
     return ElevatedButton(
       onPressed: () async {
-        await signInWithPhone();
+        FirebaseAuth auth = FirebaseAuth.instance;
+
+        PhoneAuthCredential credential = PhoneAuthProvider.credential(
+            verificationId: _verificationId, smsCode: _smsCodeController.text);
+
+        await auth
+            .signInWithCredential(credential)
+            .then((_) => Navigator.pushNamed(context, "/"));
       },
       child: Container(
         padding: const EdgeInsets.all(15),
@@ -124,52 +165,5 @@ class _LoginPhonePageState extends State<LoginPhonePage> {
         ),
       ),
     );
-  }
-Future<void> verifyPhoneNumber() async {
-  await FirebaseAuth.instance.verifyPhoneNumber(
-    phoneNumber: '+44 7123 123 456',
-    verificationCompleted: (PhoneAuthCredential credential) {},
-    verificationFailed: (FirebaseAuthException e) {},
-    codeSent: (String verificationId, int? resendToken) {},
-    codeAutoRetrievalTimeout: (String verificationId) {},
-  );
-}
-  // Future<void> verifyPhoneNumber() async {
-  //   FirebaseAuth auth = FirebaseAuth.instance;
-  //   await auth.verifyPhoneNumber(
-  //     phoneNumber: _phoneController.text,
-  //     verificationCompleted: (PhoneAuthCredential credential) async {
-  //       // This callback will be invoked in an automatic verification flow,
-  //       // such as the device automatically detecting the SMS and verifying the code without user action.
-  //       await auth.signInWithCredential(credential);
-  //       Navigator.pushNamed(context, "/"); // Navigate to your desired screen after successful login
-  //     },
-  //     verificationFailed: (FirebaseAuthException e) {
-  //       if (e.code == 'invalid-phone-number') {
-  //         print("The provided phone number is not valid.");
-  //       }
-  //     },
-  //     codeSent: (String verificationId, int? forceResendingToken) async {
-  //       setState(() {
-  //         _codeSent = true;
-  //         _verificationId = verificationId;
-  //       });
-  //     },
-  //     codeAutoRetrievalTimeout: (String verificationId) {
-  //       // This callback will be invoked when the auto-retrieval timeout has elapsed
-  //       // (e.g., when the code auto-retrieval process has not received an SMS code within a reasonable amount of time).
-  //       print("Handling code auto retrieval timeout");
-  //     },
-  //   );
-  // }
-
-  Future<void> signInWithPhone() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    PhoneAuthCredential credential = PhoneAuthProvider.credential(
-      verificationId: _verificationId,
-      smsCode: _smsCodeController.text,
-    );
-    await auth.signInWithCredential(credential);
-    Navigator.pushNamed(context, "/"); // Navigate to your desired screen after successful login
   }
 }
