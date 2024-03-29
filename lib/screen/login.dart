@@ -1,73 +1,61 @@
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:flutter/material.dart';
-
-class LoginPhonePage extends StatefulWidget {
-  const LoginPhonePage({super.key});
+class LoginPage extends StatefulWidget {
+  LoginPage({Key? key}) : super(key: key);
 
   @override
-  State<LoginPhonePage> createState() => _LoginPhonePageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPhonePageState extends State<LoginPhonePage> {
-  final _key = GlobalKey<FormState>();
-
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController _phoneController = TextEditingController();
 
   final TextEditingController _smsCodeController = TextEditingController();
 
-  bool _codeSent = false;
-
-  late String _verificationId;
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Firebase App")),
-      body: Container(
-        padding: const EdgeInsets.all(15),
-        child: Center(
-          child: Form(
-            key: _key,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                phoneNumberInput(),
-                const SizedBox(height: 15),
-                _codeSent ? const SizedBox.shrink() : submitButton(),
-                const SizedBox(height: 15),
-                _codeSent ? smsCodeInput() : const SizedBox.shrink(),
-                const SizedBox(height: 15),
-                _codeSent ? verifyButton() : const SizedBox.shrink(),
-              ],
-            ),
-          ),
+      appBar: AppBar(),
+      body: Center(
+        child: Column(
+          children: [
+            loginForm(context),
+            smsCodeInput(),
+            button(),
+          ],
         ),
       ),
     );
   }
 
-  TextFormField phoneNumberInput() {
+  Widget button() {
+    return ElevatedButton(
+      onPressed: () {
+        signInPhone(); // signInPhone 함수 호출
+      },
+      child: Text('Sign In'),
+    );
+  }
+
+  @override
+  Widget loginForm(BuildContext context) {
     return TextFormField(
       controller: _phoneController,
       autofocus: true,
-      validator: (val) {
-        if (val!.isEmpty) {
-          return 'The input is empty.';
-        } else {
-          return null;
-        }
-      },
       keyboardType: TextInputType.phone,
-      decoration: const InputDecoration(
-        border: OutlineInputBorder(),
-        hintText: 'Input your phone number.',
+      decoration: InputDecoration(
         labelText: 'Phone Number',
-        labelStyle: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
+        hintText: 'Enter your phone number',
+        prefixIcon: Icon(Icons.phone),
+        border: OutlineInputBorder(),
       ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your phone number';
+        }
+        // Add any additional validation here if needed
+        return null;
+      },
     );
   }
 
@@ -95,75 +83,102 @@ class _LoginPhonePageState extends State<LoginPhonePage> {
     );
   }
 
-  ElevatedButton submitButton() {
-    return ElevatedButton(
-      onPressed: () async {
-        print('clicked');
-        if (_key.currentState!.validate()) {
-          FirebaseAuth auth = FirebaseAuth.instance;
+  Future<void> signInPhone() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    print(auth.verifyPhoneNumber);
 
-          await auth.verifyPhoneNumber(
-            phoneNumber: _phoneController.text,
-            verificationCompleted: (PhoneAuthCredential credential) async {
-              // Android only
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: '+821022024671', // 올바른 형식으로 수정됨
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          print('here');
+          print(credential);
+          await auth.signInWithCredential(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          // 여기서 e.message를 출력합니다.
+          print(
+              'The verification failed for the following reason: ${e.message}');
+          if (e.code == 'invalid-phone-number') {
+            print('The provided phone number is not valid.');
+          } else {
+            // 에러 코드와 함께 더 상세한 에러 메시지를 출력합니다.
+            print('Error code: ${e.code}, Message: ${e.message}');
+          }
+        },
+        codeSent: (String verificationId, int? resendToken) async {
+          // 이 부분은 사용자 입력을 받은 후 처리해야 합니다.
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
 
-              await auth
-                  .signInWithCredential(credential)
-                  .then((_) => Navigator.pushNamed(context, "/"));
-            },
-            verificationFailed: (FirebaseAuthException e) {
-              if (e.code == 'invalid-phone-number') {
-                print("The provided phone number is not valid.");
-              }
-            },
-            codeSent: (String verificationId, forceResendingToken) async {
-              // String smsCode = _smsCodeController.text;
-              //
-              // setState(() {
-              //   _codeSent = true;
-              //
-              //   _verificationId = verificationId;
-              // });
-            },
-            codeAutoRetrievalTimeout: (verificationId) {
-              print("handling code auto retrieval timeout");
-            },
-          );
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        child: const Text(
-          "Send SMS Code",
-          style: TextStyle(
-            fontSize: 18,
-          ),
-        ),
-      ),
-    );
-  }
-
-  ElevatedButton verifyButton() {
-    return ElevatedButton(
-      onPressed: () async {
-        FirebaseAuth auth = FirebaseAuth.instance;
-
-        PhoneAuthCredential credential = PhoneAuthProvider.credential(
-            verificationId: _verificationId, smsCode: _smsCodeController.text);
-
-        await auth
-            .signInWithCredential(credential)
-            .then((_) => Navigator.pushNamed(context, "/"));
-      },
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        child: const Text(
-          "Verify",
-          style: TextStyle(
-            fontSize: 18,
-          ),
-        ),
-      ),
-    );
+        // await FirebaseAuth.instance.verifyPhoneNumber(
+        //   phoneNumber: '+821022024671',
+        //   verificationCompleted: (PhoneAuthCredential credential) {
+        //     print('complete');
+        //     print(credential);
+        //   },
+        //   verificationFailed: (FirebaseAuthException e) {
+        //     print(e);
+        //     if (e.code == 'invalid-phone-number') {
+        //       print('The provided phone number is not valid.');
+        //     }
+        //   },
+        //   codeSent: (String verificationId, int? resendToken) {},
+        //   codeAutoRetrievalTimeout: (String verificationId) {},
+      );
+      print('message sending');
+      // await FirebaseAuth.instance.verifyPhoneNumber(
+      //   phoneNumber: '+82 10 2202 4671', // 올바른 형식으로 수정됨
+      //   verificationCompleted: (PhoneAuthCredential credential) async {
+      //     await auth.signInWithCredential(credential);
+      //   },
+      //   verificationFailed: (FirebaseAuthException e) {
+      //     // 여기서 e.message를 출력합니다.
+      //     print(
+      //         'The verification failed for the following reason: ${e.message}');
+      //     if (e.code == 'invalid-phone-number') {
+      //       print('The provided phone number is not valid.');
+      //     } else {
+      //       // 에러 코드와 함께 더 상세한 에러 메시지를 출력합니다.
+      //       print('Error code: ${e.code}, Message: ${e.message}');
+      //     }
+      //   },
+      //   codeSent: (String verificationId, int? resendToken) async {
+      //     // 이 부분은 사용자 입력을 받은 후 처리해야 합니다.
+      //   },
+      //   codeAutoRetrievalTimeout: (String verificationId) {},
+    } catch (e) {
+      print('An error occurred during phone authentication: $e');
+    }
   }
 }
+
+// codeSent: (String verificationId, int? resendToken) async {
+// // 다이얼로그를 표시하여 사용자로부터 SMS 코드를 입력받습니다.
+// // 예시 코드는 다이얼로그 구현 방법을 간략하게 보여줍니다.
+// String? smsCode = await showDialog(
+// context: context, // context를 올바르게 참조해야 합니다.
+// builder: (context) => AlertDialog(
+// title: Text("Enter SMS Code"),
+// content: smsCodeInput(), // 여기에서 smsCodeInput() 호출
+// actions: [
+// TextButton(
+// child: Text("Confirm"),
+// onPressed: () {
+// Navigator.of(context).pop(_smsCodeController.text);
+// },
+// ),
+// ],
+// ),
+// );
+//
+// if (smsCode != null) {
+// PhoneAuthCredential credential = PhoneAuthProvider.credential(
+// verificationId: verificationId, smsCode: smsCode);
+// try {
+// await auth.signInWithCredential(credential);
+// } catch (e) {
+// print("Failed to sign in: $e");
+// }
+// }
+// },
